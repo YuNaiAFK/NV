@@ -243,7 +243,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     private void decorateTag(View badge, Tag tag) {
         TextView name = badge.findViewById(R.id.tag_badge_name);
         TextView count = badge.findViewById(R.id.tag_badge_count);
-        String label = TagTranslations.label(context, tag.getName());
+        String label = TagTranslations.label(context, tag.getType().getSingle(), tag.getName());
         boolean hidden = GalleryTagPreferences.isHidden(tag);
         boolean liked = GalleryTagPreferences.isLiked(context, tag);
         name.setText(label);
@@ -260,7 +260,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     }
 
     private void showTagActions(View chip, Tag tag) {
-        String label = TagTranslations.label(context, tag.getName());
+        String label = TagTranslations.label(context, tag.getType().getSingle(), tag.getName());
         boolean liked = GalleryTagPreferences.isLiked(context, tag);
         boolean hidden = GalleryTagPreferences.isHidden(tag);
         String title = label.equals(tag.getName()) ? label : label + " · " + tag.getName();

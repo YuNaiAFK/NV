@@ -16,7 +16,7 @@ NVbook 以 [maxwai/NClientV3](https://github.com/maxwai/NClientV3) 的 [`8877d12
 - 在「設定 → API key」點選「登入 nhentai 官網」，即可在瀏覽器登入；取得 API 金鑰後，回到 App 貼上並驗證。App 不接收官網密碼。
 - 在「本機收藏」的 ⋮ 選單選擇「同步官網收藏」，即可補齊官網與本機各自缺少的收藏。同步不傳遞刪除動作，也不會建立重複收藏；如果中途停止，可再次執行同步。
 
-作品詳情中的常見標籤有簡體及繁體中文顯示名稱。點選標籤可查看相同標籤的作品、喜歡標籤或在首頁隱藏相關作品。喜歡標籤不會影響搜尋結果；按住標籤可複製網站原名。
+作品詳情的簡繁中文標籤名稱採用公開的 EhTagTranslation 詞庫；沒有對應譯名時顯示原名。點選標籤可查看相同標籤的作品、喜歡標籤或在首頁隱藏相關作品。喜歡標籤不會影響搜尋結果；按住標籤可複製網站原名。
 
 ## 安裝與建置
 
@@ -60,3 +60,5 @@ Windows 上請將最後一行改為 `.\gradlew.bat -PnvbookFlutter=true assemble
 ## 授權條款
 
 本專案沿用 [Apache License 2.0](LICENSE)。上游著作權聲明：Copyright 2024 maxwai。
+
+標籤譯名資料另依 [CC BY-NC-SA 3.0 中國大陸](app/src/main/assets/tag_translations_license.md) 授權。來源與更新方式請見[詞庫說明](app/src/main/assets/tag_translations_notice.md)。
