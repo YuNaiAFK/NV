@@ -167,7 +167,7 @@ dependencies {
         exclude(group = "com.android.support")
     }
     implementation("com.github.bumptech.glide:okhttp3-integration:5.0.7@aar")
-    annotationProcessor("com.github.bumptech.glide:compiler:5.0.7")
+    annotationProcessor("com.github.bumptech.glide:compiler:5.0.10")
     // For Http Connection
     implementation("com.squareup.okhttp3:okhttp-urlconnection:5.4.0")
     // Used to store the cookies between runs
