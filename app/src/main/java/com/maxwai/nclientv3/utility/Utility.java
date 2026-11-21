@@ -121,7 +121,8 @@ public class Utility {
     }
 
     public static void savePage(Context context, Drawable drawable, String name) {
-        Bitmap bitmap = drawable instanceof GifDrawable gif ? gif.getFirstFrame() : drawableToBitmap(drawable);
+        Bitmap bitmap = drawable instanceof GifDrawable
+            ? ((GifDrawable) drawable).getFirstFrame() : drawableToBitmap(drawable);
         if (bitmap == null) {
             Toast.makeText(context, R.string.page_image_unavailable, Toast.LENGTH_SHORT).show();
             return;
