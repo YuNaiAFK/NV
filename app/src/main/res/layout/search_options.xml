@@ -30,7 +30,7 @@
             android:layout_height="wrap_content" />
 
         <TextView
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/tags" />
@@ -46,7 +46,7 @@
             android:animateLayoutChanges="true" />
 
         <TextView
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/parodies" />
@@ -62,7 +62,7 @@
             android:animateLayoutChanges="true" />
 
         <TextView
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/characters" />
@@ -78,7 +78,7 @@
             android:animateLayoutChanges="true" />
 
         <TextView
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/artists" />
@@ -94,7 +94,7 @@
             android:animateLayoutChanges="true" />
 
         <TextView
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/groups" />
@@ -110,7 +110,7 @@
             android:animateLayoutChanges="true" />
 
         <TextView
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/categories" />
@@ -126,7 +126,7 @@
             android:animateLayoutChanges="true" />
 
         <TextView
-            style="@style/TextAppearance.MaterialComponents.Headline6"
+            style="@style/TextAppearance.Material3.TitleMedium"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/languages" />

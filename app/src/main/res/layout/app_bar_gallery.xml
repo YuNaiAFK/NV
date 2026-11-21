@@ -13,14 +13,14 @@
             android:id="@+id/collapsing"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="?attr/colorPrimaryVariant"
-            app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Large"
+            app:contentScrim="?attr/colorSurface"
+            app:expandedTitleTextAppearance="@style/TextAppearance.Material3.HeadlineSmall"
             app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
             app:maxLines="4"
             app:toolbarId="@+id/toolbar">
 
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"

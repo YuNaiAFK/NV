@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - 'main'
+            - 'codex/nvbook-dev'
     pull_request:
         branches:
             - '*'

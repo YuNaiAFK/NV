@@ -4,7 +4,7 @@
     android:id="@+id/layout_header"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:background="?attr/navHeaderGradient"
+    android:background="?attr/colorPrimaryContainer"
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingStart="@dimen/activity_horizontal_margin"
@@ -31,7 +31,8 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:text="@string/app_name"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="?attr/colorOnPrimaryContainer"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
@@ -41,6 +42,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/nav_header_subtitle"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+        android:textColor="?attr/colorOnPrimaryContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 

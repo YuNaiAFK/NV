@@ -1,5 +1,6 @@
 package com.maxwai.nclientv3;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -61,6 +62,8 @@ public class ApiKeyActivity extends GeneralActivity {
         validateApiKey = findViewById(R.id.validate_api_key);
 
         setInputVisible(true);
+        findViewById(R.id.open_official_login).setOnClickListener(v ->
+            openInBrowser("https://" + Utility.ORIGINAL_URL + "/login/"));
         openApiKeyPage.setOnClickListener(v -> openApiKeyPage());
         clearApiKey.setOnClickListener(v -> clearSavedApiKey());
         validateApiKey.setOnClickListener(v -> validateAndSaveApiKey());
@@ -74,7 +77,15 @@ public class ApiKeyActivity extends GeneralActivity {
     }
 
     private void openApiKeyPage() {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Utility.getBaseUrl() + "user/settings#apikeys")));
+        openInBrowser(Utility.getBaseUrl() + "user/settings#apikeys");
+    }
+
+    private void openInBrowser(String url) {
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(this, R.string.login_browser_unavailable, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateStatusMessage(@NonNull String message) {

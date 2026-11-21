@@ -6,7 +6,14 @@
     <color name="tint_dark">@android:color/black</color>
     <color name="tint_light">@android:color/white</color>
 
-    <color name="primaryColorVariant">@color/primary_material_light</color>
-    <color name="colorAccent">@android:color/holo_blue_bright</color>
-    <color name="colorPrimary">@android:color/holo_blue_bright</color>
+    <color name="nv_primary">#634396</color>
+    <color name="nv_on_primary">#FFFFFF</color>
+    <color name="nv_primary_container">#EDDDFF</color>
+    <color name="nv_on_primary_container">#251146</color>
+    <color name="nv_surface">#FEF8FF</color>
+    <color name="nv_on_surface">#211B26</color>
+    <color name="nv_on_surface_variant">#4B4452</color>
+    <color name="nv_surface_low">#F7F0FA</color>
+    <color name="nv_surface_high">#F0E8F4</color>
+    <color name="nv_outline_variant">#D0C3D4</color>
 </resources>
