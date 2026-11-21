@@ -435,4 +435,14 @@
     <string name="flutter_classic">Classic browsing</string>
     <string name="flutter_empty">No galleries found</string>
     <string name="flutter_more">Load more</string>
+    <string name="gallery_tag_find">Browse this tag</string>
+    <string name="gallery_tag_like">Like tag</string>
+    <string name="gallery_tag_unlike">Unlike tag</string>
+    <string name="gallery_tag_hide">Hide galleries with this tag</string>
+    <string name="gallery_tag_unhide">Show galleries with this tag</string>
+    <string name="gallery_tag_hidden">Tag hidden from Explore</string>
+    <string name="gallery_tag_unhidden">Tag no longer hidden</string>
+    <string name="gallery_tag_hidden_label">%1$s, hidden tag</string>
+    <string name="gallery_tag_liked_label">%1$s, liked tag</string>
+    <string name="gallery_details_pages">Pages:</string>
 </resources>

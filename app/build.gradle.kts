@@ -26,8 +26,8 @@ if (flutterHomeEnabled) {
 }
 
 val majorVersion = 5
-val minorVersion = 0
-val patchVersion = 1
+val minorVersion = 1
+val patchVersion = 0
 val buildVersion = 0
 val version = "${majorVersion}.${minorVersion}.${patchVersion}"
 

@@ -144,12 +144,15 @@ public class InspectorV3 extends Thread implements Parcelable {
     }
 
     public static InspectorV3 tagInspector(Context context, Tag tag, int page, SortType sortType, InspectorResponse response) {
+        Tag selected = new Tag(tag.getName(), tag.getCount(), tag.getId(), tag.getType(), TagStatus.ACCEPTED);
         Collection<Tag> tags;
         if (!Global.isOnlyTag()) {
             tags = getDefaultTags();
-            tags.add(tag);
+            // An explicit tag click overrides this tag's saved exclusion, not other filters.
+            tags.remove(selected);
+            tags.add(selected);
         } else {
-            tags = Collections.singleton(tag);
+            tags = Collections.singleton(selected);
         }
         return searchInspector(context, null, tags, page, sortType, null, response);
     }

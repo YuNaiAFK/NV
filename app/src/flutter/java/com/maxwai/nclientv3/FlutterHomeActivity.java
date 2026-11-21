@@ -24,7 +24,7 @@ import com.maxwai.nclientv3.api.enums.SortType;
 import com.maxwai.nclientv3.components.activities.CrashApplication;
 import com.maxwai.nclientv3.settings.AuthStore;
 import com.maxwai.nclientv3.settings.Global;
-import com.maxwai.nclientv3.settings.TagV2;
+import com.maxwai.nclientv3.settings.GalleryTagPreferences;
 import com.maxwai.nclientv3.utility.Utility;
 
 import java.io.IOException;
@@ -149,6 +149,7 @@ public final class FlutterHomeActivity extends FlutterActivity {
         settings.put("languageLabel", localized.getString(R.string.all_languages));
         settings.put("sortLabel", localized.getString(R.string.sort_select_type));
         settings.put("showTitles", Global.showTitles());
+        settings.put("hiddenTags", GalleryTagPreferences.hiddenTagQuery());
         settings.put("signedIn", AuthStore.hasValidApiKey(this));
         return settings;
     }
@@ -192,12 +193,12 @@ public final class FlutterHomeActivity extends FlutterActivity {
                 if (!inspector.createDocument()) throw new IOException("Catalog request failed");
                 inspector.parseDocument();
                 List<Map<String, Object>> rows = new ArrayList<>();
-                String avoided = TagV2.getAvoidedTags();
+                String avoided = GalleryTagPreferences.hiddenTagQuery();
                 for (GenericGallery item : inspector.getGalleries()) {
                     if (!(item instanceof SimpleGallery) || !item.isValid()) continue;
                     SimpleGallery gallery = (SimpleGallery) item;
                     boolean hidden = avoided != null && gallery.hasIgnoredTags(avoided);
-                    if (hidden && Global.removeAvoidedGalleries()) continue;
+                    if (hidden) continue;
                     Map<String, Object> row = new HashMap<>();
                     row.put("id", gallery.getId());
                     row.put("title", gallery.getTitle());

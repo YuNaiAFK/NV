@@ -225,7 +225,8 @@ class _WorkspaceState extends State<Workspace> {
   void didUpdateWidget(covariant Workspace oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.labels['language'] != widget.labels['language'] ||
-        oldWidget.labels['sort'] != widget.labels['sort']) {
+        oldWidget.labels['sort'] != widget.labels['sort'] ||
+        oldWidget.labels['hiddenTags'] != widget.labels['hiddenTags']) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _searchFor(_query);
       });

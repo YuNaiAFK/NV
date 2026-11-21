@@ -1,6 +1,9 @@
 package com.maxwai.nclientv3.adapters;
 
 import android.content.Intent;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,19 +33,25 @@ import com.maxwai.nclientv3.async.database.Queries;
 import com.maxwai.nclientv3.components.widgets.CustomGridLayoutManager;
 import com.maxwai.nclientv3.files.GalleryFolder;
 import com.maxwai.nclientv3.github.chrisbanes.photoview.PhotoView;
+import com.maxwai.nclientv3.settings.GalleryTagPreferences;
 import com.maxwai.nclientv3.settings.Global;
+import com.maxwai.nclientv3.settings.TagTranslations;
 import com.maxwai.nclientv3.utility.ImageDownloadUtility;
 import com.maxwai.nclientv3.utility.LogUtility;
 import com.maxwai.nclientv3.utility.Utility;
-import com.google.android.material.chip.Chip;
+import com.maxwai.nclientv3.api.enums.TitleType;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.color.MaterialColors;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHolder> {
+    private static final Pattern TITLE_CREDITS = Pattern.compile("^\\[[^]]+\\]\\s*(?=\\S)|\\s+\\[[^]]+\\]$");
     private static final int[] TAG_NAMES = {
         R.string.unknown,
         R.string.tag_parody_gallery,
@@ -164,48 +173,121 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     }
 
     private void loadTagLayout(ViewHolder holder) {
-        final ViewGroup vg = holder.master.findViewById(R.id.tag_master);
-        final TextView idContainer = holder.master.findViewById(R.id.id_num);
-        initializeIdContainer(idContainer);
-        if (!hasTags()) {
-            ViewGroup.LayoutParams layoutParams = vg.getLayoutParams();
-            layoutParams.height = 0;
-            vg.setLayoutParams(layoutParams);
-            return;
-        }
-        final LayoutInflater inflater = context.getLayoutInflater();
+        bindGalleryTitles(holder);
+        initializeIdContainer(holder.master.findViewById(R.id.id_num));
 
-        int tagCount, idStringTagName;
-        ViewGroup lay;
-        ChipGroup cg;
-        TagList tagList = this.gallery.getGalleryData().getTags();
-        for (TagType type : TagType.values) {
-            idStringTagName = TAG_NAMES[type.getId()];
-            tagCount = tagList.getCount(type);
-            lay = (ViewGroup) vg.getChildAt(type.getId());
-            cg = lay.findViewById(R.id.chip_group);
-            if (cg.getChildCount() != 0) continue;
-            lay.setVisibility(tagCount == 0 ? View.GONE : View.VISIBLE);
-            ((TextView) lay.findViewById(R.id.title)).setText(idStringTagName);
-            for (int a = 0; a < tagCount; a++) {
-                final Tag tag = tagList.getTag(type, a);
-                Chip c = (Chip) inflater.inflate(R.layout.chip_layout, cg, false);
-                c.setText(tag.getName());
-                c.setOnClickListener(v -> {
+        final ViewGroup groups = holder.master.findViewById(R.id.tag_master);
+        groups.setVisibility(gallery.hasGalleryData() ? View.VISIBLE : View.GONE);
+        if (gallery.hasGalleryData()) {
+            TagList tagList = gallery.getGalleryData().getTags();
+            LayoutInflater inflater = context.getLayoutInflater();
+            for (TagType type : TagType.values) {
+                ChipGroup group = (ChipGroup) groups.getChildAt(type.getId());
+                int count = tagList.getCount(type);
+                group.setVisibility(count == 0 ? View.GONE : View.VISIBLE);
+                ((TextView) group.findViewById(R.id.title)).setText(context.getString(TAG_NAMES[type.getId()]) + ":");
+                if (group.getChildCount() > 1) group.removeViews(1, group.getChildCount() - 1);
+                for (int index = 0; index < count; index++) {
+                    Tag tag = tagList.getTag(type, index);
+                    View badge = inflater.inflate(R.layout.gallery_tag_badge, group, false);
+                    decorateTag(badge, tag);
+                    badge.setOnClickListener(v -> showTagActions(badge, tag));
+                    badge.setOnLongClickListener(v -> {
+                        CopyToClipboardActivity.copyTextToClipboard(context, tag.getName());
+                        Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
+                        return true;
+                    });
+                    group.addView(badge);
+                }
+            }
+        }
+        addInfoLayout(holder);
+    }
+
+    private void bindGalleryTitles(ViewHolder holder) {
+        TextView title = holder.master.findViewById(R.id.gallery_primary_title);
+        TextView subtitle = holder.master.findViewById(R.id.gallery_secondary_title);
+        String first = gallery.getTitle();
+        String second = "";
+        if (gallery.hasGalleryData()) {
+            GalleryData data = gallery.getGalleryData();
+            boolean japaneseFirst = Global.getTitleType() == TitleType.JAPANESE;
+            String preferred = data.getTitle(japaneseFirst ? TitleType.JAPANESE : TitleType.ENGLISH);
+            if (preferred != null && !preferred.trim().isEmpty()) first = preferred;
+            second = data.getTitle(japaneseFirst ? TitleType.ENGLISH : TitleType.JAPANESE);
+        }
+        SpannableString styled = new SpannableString(first);
+        int muted = MaterialColors.getColor(title, com.google.android.material.R.attr.colorOnSurfaceVariant);
+        Matcher credits = TITLE_CREDITS.matcher(first);
+        while (credits.find()) {
+            styled.setSpan(new ForegroundColorSpan(muted), credits.start(), credits.end(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        title.setText(styled);
+        boolean showSubtitle = second != null && !second.trim().isEmpty() && !second.equals(first);
+        subtitle.setText(showSubtitle ? second : "");
+        subtitle.setVisibility(showSubtitle ? View.VISIBLE : View.GONE);
+        title.setOnLongClickListener(v -> {
+            CopyToClipboardActivity.copyTextToClipboard(context, title.getText().toString());
+            Toast.makeText(context, R.string.title_copied_to_clipboard, Toast.LENGTH_SHORT).show();
+            return true;
+        });
+    }
+
+    private static String compactCount(int count) {
+        if (count >= 1_000_000) return String.format(Locale.getDefault(), "%.1fM", count / 1_000_000.0);
+        if (count >= 1000) return String.format(Locale.getDefault(), "%.1fk", count / 1000.0);
+        return String.format(Locale.getDefault(), "%d", count);
+    }
+
+    private void decorateTag(View badge, Tag tag) {
+        TextView name = badge.findViewById(R.id.tag_badge_name);
+        TextView count = badge.findViewById(R.id.tag_badge_count);
+        String label = TagTranslations.label(context, tag.getName());
+        boolean hidden = GalleryTagPreferences.isHidden(tag);
+        boolean liked = GalleryTagPreferences.isLiked(context, tag);
+        name.setText(label);
+        name.setCompoundDrawablesRelativeWithIntrinsicBounds(hidden ? R.drawable.ic_close
+            : liked ? R.drawable.ic_favorite : 0, 0, 0, 0);
+        name.setCompoundDrawablePadding(4);
+        name.setCompoundDrawableTintList(android.content.res.ColorStateList.valueOf(name.getCurrentTextColor()));
+        count.setText(compactCount(tag.getCount()));
+        count.setVisibility(tag.getCount() > 0 ? View.VISIBLE : View.GONE);
+        String description = hidden ? context.getString(R.string.gallery_tag_hidden_label, label)
+            : liked ? context.getString(R.string.gallery_tag_liked_label, label) : label;
+        badge.setContentDescription(tag.getCount() > 0
+            ? description + ", " + String.format(Locale.getDefault(), "%,d", tag.getCount()) : description);
+    }
+
+    private void showTagActions(View chip, Tag tag) {
+        String label = TagTranslations.label(context, tag.getName());
+        boolean liked = GalleryTagPreferences.isLiked(context, tag);
+        boolean hidden = GalleryTagPreferences.isHidden(tag);
+        String title = label.equals(tag.getName()) ? label : label + " · " + tag.getName();
+        new MaterialAlertDialogBuilder(context)
+            .setTitle(title)
+            .setItems(new CharSequence[]{
+                context.getString(R.string.gallery_tag_find),
+                context.getString(liked ? R.string.gallery_tag_unlike : R.string.gallery_tag_like),
+                context.getString(hidden ? R.string.gallery_tag_unhide : R.string.gallery_tag_hide),
+            }, (dialog, which) -> {
+                if (which == 0) {
                     Intent intent = new Intent(context, MainActivity.class);
                     intent.putExtra(context.getPackageName() + ".TAG", tag);
                     intent.putExtra(context.getPackageName() + ".ISBYTAG", true);
                     context.startActivity(intent);
-                });
-                c.setOnLongClickListener(v -> {
-                    CopyToClipboardActivity.copyTextToClipboard(context, tag.getName());
-                    Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-                    return true;
-                });
-                cg.addView(c);
-            }
-            addInfoLayout(holder, gallery.getGalleryData());
-        }
+                } else if (which == 1) {
+                    GalleryTagPreferences.setLiked(context, tag, !liked);
+                    decorateTag(chip, tag);
+                } else {
+                    GalleryTagPreferences.setHidden(tag, !hidden);
+                    decorateTag(chip, tag);
+                    Toast.makeText(context, hidden ? R.string.gallery_tag_unhidden
+                        : R.string.gallery_tag_hidden, Toast.LENGTH_SHORT).show();
+                }
+            })
+            .setNegativeButton(R.string.cancel, null)
+            .show();
     }
 
     private void initializeIdContainer(TextView idContainer) {
@@ -214,7 +296,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
             return;
         }
         String id = Integer.toString(gallery.getId());
-        idContainer.setText(id);
+        idContainer.setText("#" + id);
         idContainer.setVisibility(gallery.getId() != SpecialTagIds.INVALID_ID ? View.VISIBLE : View.GONE);
         idContainer.setOnClickListener(v -> {
             CopyToClipboardActivity.copyTextToClipboard(context, id);
@@ -224,18 +306,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         });
     }
 
-    private void addInfoLayout(ViewHolder holder, GalleryData gallery) {
-        TextView text = holder.master.findViewById(R.id.page_count);
-        text.setText(context.getString(R.string.page_count_format, gallery.getPageCount()));
-        text = holder.master.findViewById(R.id.upload_date);
-        text.setText(
-            context.getString(R.string.upload_date_format,
-                android.text.format.DateFormat.getDateFormat(context).format(gallery.getUploadDate()),
-                android.text.format.DateFormat.getTimeFormat(context).format(gallery.getUploadDate())
-            ));
-        text = holder.master.findViewById(R.id.favorite_count);
-        text.setText(context.getString(R.string.favorite_count_format, gallery.getFavoriteCount()));
+    private void addInfoLayout(ViewHolder holder) {
+        TextView pages = holder.master.findViewById(R.id.page_count);
+        pages.setText(String.format(Locale.getDefault(), "%d", gallery.getPageCount()));
+        TextView date = holder.master.findViewById(R.id.upload_date);
+        TextView favorites = holder.master.findViewById(R.id.favorite_count);
+        date.setVisibility(gallery.hasGalleryData() ? View.VISIBLE : View.GONE);
+        favorites.setVisibility(gallery.hasGalleryData() ? View.VISIBLE : View.GONE);
+        if (!gallery.hasGalleryData()) return;
 
+        GalleryData data = gallery.getGalleryData();
+        date.setText(context.getString(R.string.upload_date_format,
+            android.text.format.DateFormat.getDateFormat(context).format(data.getUploadDate()),
+            android.text.format.DateFormat.getTimeFormat(context).format(data.getUploadDate())));
+        favorites.setText(context.getString(R.string.favorite_count_format, data.getFavoriteCount()));
     }
 
     private void loadPageLayout(ViewHolder holder) {
@@ -352,9 +436,6 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
     }
 
 
-    private boolean hasTags() {
-        return gallery.hasGalleryData();
-    }
 
     @Override
     public int getItemViewType(int position) {

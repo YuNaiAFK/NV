@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.maxwai.nclientv3.adapters.GalleryAdapter;
@@ -187,29 +186,14 @@ public class GalleryActivity extends BaseActivity {
     }
 
     private void applyTitle() {
-        CollapsingToolbarLayout collapsing = findViewById(R.id.collapsing);
         ActionBar actionBar = getSupportActionBar();
-        final String title = gallery.getTitle();
-        if (collapsing == null || actionBar == null) return;
-        View.OnLongClickListener listener = v -> {
-            CopyToClipboardActivity.copyTextToClipboard(GalleryActivity.this, title);
-            GalleryActivity.this.runOnUiThread(
-                () -> Toast.makeText(GalleryActivity.this, R.string.title_copied_to_clipboard, Toast.LENGTH_SHORT).show()
-            );
+        if (actionBar == null) return;
+        actionBar.setDisplayShowTitleEnabled(false);
+        findViewById(R.id.toolbar).setOnLongClickListener(v -> {
+            CopyToClipboardActivity.copyTextToClipboard(GalleryActivity.this, gallery.getTitle());
+            Toast.makeText(GalleryActivity.this, R.string.title_copied_to_clipboard, Toast.LENGTH_SHORT).show();
             return true;
-        };
-
-        collapsing.setOnLongClickListener(listener);
-        findViewById(R.id.toolbar).setOnLongClickListener(listener);
-        if (title.length() > 100) {
-            collapsing.setExpandedTitleTextAppearance(android.R.style.TextAppearance_DeviceDefault_Medium);
-            collapsing.setMaxLines(5);
-        } else {
-            collapsing.setExpandedTitleTextAppearance(android.R.style.TextAppearance_DeviceDefault_Large);
-            collapsing.setMaxLines(4);
-        }
-        actionBar.setTitle(title);
-
+        });
     }
 
     @Override

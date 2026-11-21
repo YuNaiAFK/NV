@@ -8,6 +8,7 @@ class FixtureHost extends Host {
   String theme = 'light';
   String language = 'ALL';
   String sort = 'RECENT';
+  String hiddenTags = '';
   final queries = <(String, int)>[];
   final routes = <(String, int?)>[];
 
@@ -16,6 +17,7 @@ class FixtureHost extends Host {
     'theme': theme,
     'language': language,
     'sort': sort,
+    'hiddenTags': hiddenTags,
     'languages': {'ALL': 'All languages', 'JAPANESE': 'Japanese'},
     'sorts': {'RECENT': 'Recent', 'POPULAR': 'Popular'},
     'languageLabel': 'Gallery language',
@@ -70,6 +72,19 @@ class FixtureHost extends Host {
 }
 
 void main() {
+  testWidgets('returning from details refreshes Explore after hiding a tag', (
+    tester,
+  ) async {
+    final host = FixtureHost();
+    await tester.pumpWidget(NvbookApp(host: host));
+    await tester.pumpAndSettle();
+    expect(host.queries, [('', 1)]);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    host.hiddenTags = 'hidden catalog state';
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(host.queries, [('', 1), ('', 1)]);
+  });
   testWidgets('language and sort return to page one without clearing search', (
     tester,
   ) async {

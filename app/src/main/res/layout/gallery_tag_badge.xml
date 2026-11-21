@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:background="@drawable/gallery_tag_badge_background"
+    android:clipToOutline="true"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/tag_badge_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:maxWidth="230dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="2"
+        android:paddingStart="10dp"
+        android:paddingEnd="9dp"
+        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+        android:textColor="?attr/colorOnSurface"
+        android:importantForAccessibility="no" />
+
+    <TextView
+        android:id="@+id/tag_badge_count"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurfaceContainerLow"
+        android:gravity="center"
+        android:minWidth="34dp"
+        android:paddingStart="7dp"
+        android:paddingEnd="7dp"
+        android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:importantForAccessibility="no" />
+
+</LinearLayout>
