@@ -45,6 +45,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.color.MaterialColors;
 
 import java.util.ArrayList;
+import java.io.File;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
