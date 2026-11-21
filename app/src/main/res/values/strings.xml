@@ -417,6 +417,9 @@
     <string name="online_blacklist_add_error">Error adding to online blacklist</string>
     <string name="clipboard_settings_error">Error copying settings into clipboard</string>
     <string name="send_image_error">Error creating Image to send</string>
+    <string name="page_image_unavailable">Page image is not ready</string>
+    <string name="page_image_saved">Image saved</string>
+    <string name="page_image_save_failed">Could not save image</string>
     <string name="unlock">Unlock</string>
     <string name="auth_error">Authentication error</string>
     <string name="auth_title">Biometric login for NClient</string>

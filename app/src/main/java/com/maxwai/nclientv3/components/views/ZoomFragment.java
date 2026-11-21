@@ -238,6 +238,11 @@ public class ZoomFragment extends Fragment {
         return photoView.getDrawable();
     }
 
+    @Nullable
+    public Drawable getLoadedPageDrawable() {
+        return completedDownload && photoView != null ? photoView.getDrawable() : null;
+    }
+
     public void cancelRequest() {
         if (completedDownload) return;
         if (photoView != null && target != null) {

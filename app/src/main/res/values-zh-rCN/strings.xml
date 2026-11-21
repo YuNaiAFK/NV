@@ -325,6 +325,9 @@
     <string name="online_blacklist_add_error">添加到在线黑名单时出错</string>
     <string name="clipboard_settings_error">将设置复制到剪贴板时出错</string>
     <string name="send_image_error">创建待发送图像时出错</string>
+    <string name="page_image_unavailable">请等待图片加载完成</string>
+    <string name="page_image_saved">图片已保存</string>
+    <string name="page_image_save_failed">图片保存失败</string>
     <string name="unlock">解锁</string>
     <string name="auth_error">身份验证错误</string>
     <string name="auth_title">生物识别登录</string>

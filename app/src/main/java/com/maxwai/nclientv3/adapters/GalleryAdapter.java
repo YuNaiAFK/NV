@@ -44,7 +44,6 @@ import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.color.MaterialColors;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -364,7 +363,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         adapter.add(context.getString(R.string.share));
         adapter.add(context.getString(R.string.rotate_image));
         adapter.add(context.getString(R.string.bookmark_here));
-        if (Global.hasStoragePermission(context))
+        if (Utility.canSavePage(context))
             adapter.add(context.getString(R.string.save_page));
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context);
         builder.setTitle(R.string.settings).setIcon(R.drawable.ic_share);
@@ -381,7 +380,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
                     break;
                 case 3:
                     String name = String.format(Locale.US, "%d-%d.jpg", gallery.getId(), pos);
-                    Utility.saveImage(imgView.getDrawable(), new File(Global.SCREENFOLDER, name));
+                    Utility.savePage(context, imgView.getDrawable(), name);
                     break;
             }
         }).show();

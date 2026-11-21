@@ -325,6 +325,9 @@
     <string name="online_blacklist_add_error">新增至線上黑名單時發生錯誤</string>
     <string name="clipboard_settings_error">將設定複製到剪貼簿時發生錯誤</string>
     <string name="send_image_error">建立要傳送的影像時發生錯誤</string>
+    <string name="page_image_unavailable">請等待圖片載入完成</string>
+    <string name="page_image_saved">圖片已儲存</string>
+    <string name="page_image_save_failed">無法儲存圖片</string>
     <string name="unlock">解鎖</string>
     <string name="auth_error">驗證錯誤</string>
     <string name="auth_title">生物特徵登入</string>

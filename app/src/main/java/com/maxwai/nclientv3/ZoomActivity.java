@@ -38,7 +38,6 @@ import com.maxwai.nclientv3.utility.LogUtility;
 import com.maxwai.nclientv3.utility.Utility;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.io.File;
 import java.util.Objects;
 
 public class ZoomActivity extends GeneralActivity {
@@ -290,9 +289,10 @@ public class ZoomActivity extends GeneralActivity {
         if (id == R.id.rotate) {
             getActualFragment().rotate();
         } else if (id == R.id.save_page) {
-            if (Global.hasStoragePermission(this)) {
+            if (Utility.canSavePage(this)) {
                 downloadPage();
             } else requestStorage();
+            return true;
         } else if (id == R.id.share) {
             if (gallery.getId() <= 0) sendImage(false);
             else openSendImageDialog();
@@ -367,8 +367,10 @@ public class ZoomActivity extends GeneralActivity {
     }
 
     private void downloadPage() {
-        final File output = new File(Global.SCREENFOLDER, gallery.getId() + "-" + (mViewPager.getCurrentItem() + 1) + ".jpg");
-        Utility.saveImage(getActualFragment().getDrawable(), output);
+        int page = mViewPager.getCurrentItem();
+        ZoomFragment fragment = getActualFragment(page);
+        Utility.savePage(this, fragment == null ? null : fragment.getLoadedPageDrawable(),
+            gallery.getId() + "-" + (page + 1) + ".jpg");
     }
 
     private void animateLayout() {
