@@ -59,13 +59,13 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"))
             versionNameSuffix = "-release"
-            resValue("string", "app_name", "NClientV3")
+            resValue("string", "app_name", "NVbook")
             signingConfig = signingConfigs.getByName("release")
         }
         getByName("debug") {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue("string", "app_name", "NClientV3 Debug")
+            resValue("string", "app_name", "NVbook Debug")
         }
         create("RelWithDebInfo") {
             initWith(buildTypes["release"])
@@ -199,7 +199,7 @@ abstract class CreateRenamedApk : DefaultTask() {
     fun taskAction() {
         val builtArtifacts = builtArtifactsLoader.get().load(apkFolder.get())
             ?: throw RuntimeException("Cannot load APKs")
-        val newName = "NClientV3_${versionName.get()}${suffix.get()}.apk"
+        val newName = "NVbook_${versionName.get()}${suffix.get()}.apk"
         val newFile = apkFolder.asFile.get().resolve(newName)
         File(builtArtifacts.elements.single().outputFile).renameTo(newFile)
         if (!suffix.get().contains("_debug")) {
