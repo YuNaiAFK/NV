@@ -422,4 +422,12 @@
     <string name="auth_title">Biometric login for NClient</string>
     <string name="auth_subtitle">Log in using your biometric credential</string>
 
+    <string name="favorites_sync_title">Sync website favorites</string>
+    <string name="favorites_sync_sign_in">Connect your nhentai account with an API key first.</string>
+    <string name="favorites_sync_confirm">Add missing favorites to both your device and your nhentai account. Nothing will be removed.</string>
+    <string name="favorites_sync_running">Syncing website and local favorites…</string>
+    <string name="favorites_sync_done">Synced: %1$d to this device, %2$d to the website.</string>
+    <string name="favorites_sync_failed">Sync incomplete. Confirmed: %1$d to this device, %2$d to the website. Check your API key and connection, then try again.</string>
+    <string name="favorites_sync_canceled">Sync stopped. Confirmed: %1$d to this device, %2$d to the website.</string>
+    <string name="favorites_sync_skipped">Synced: %1$d to this device, %2$d to the website. %3$d unavailable on the website.</string>
 </resources>

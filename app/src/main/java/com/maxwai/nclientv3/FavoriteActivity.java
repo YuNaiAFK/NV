@@ -6,19 +6,24 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 
 import com.maxwai.nclientv3.adapters.FavoriteAdapter;
+import com.maxwai.nclientv3.api.FavoriteSync;
 import com.maxwai.nclientv3.api.components.Gallery;
 import com.maxwai.nclientv3.async.database.Queries;
 import com.maxwai.nclientv3.async.downloader.DownloadGalleryV2;
 import com.maxwai.nclientv3.components.activities.BaseActivity;
 import com.maxwai.nclientv3.components.views.PageSwitcher;
+import com.maxwai.nclientv3.settings.AuthStore;
 import com.maxwai.nclientv3.settings.Global;
+import com.maxwai.nclientv3.utility.LogUtility;
 import com.maxwai.nclientv3.utility.Utility;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -31,6 +36,8 @@ public class FavoriteActivity extends BaseActivity {
     private boolean sortByTitle = false;
     private PageSwitcher pageSwitcher;
     private SearchView searchView;
+    private FavoriteSync favoriteSync;
+    private AlertDialog syncDialog;
 
     public static int getEntryPerPage() {
         return Global.isInfiniteScrollFavorite() ? Integer.MAX_VALUE : ENTRY_PER_PAGE;
@@ -103,6 +110,7 @@ public class FavoriteActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.favorite_sync, menu);
         menu.findItem(R.id.download_page).setVisible(true);
         menu.findItem(R.id.sort_by_name).setVisible(true);
         menu.findItem(R.id.by_popular).setVisible(false);
@@ -132,7 +140,10 @@ public class FavoriteActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent i;
-        if (item.getItemId() == R.id.open_browser) {
+        if (item.getItemId() == R.id.sync_online_favorites) {
+            confirmOnlineFavoriteSync();
+            return true;
+        } else if (item.getItemId() == R.id.open_browser) {
             i = new Intent(Intent.ACTION_VIEW, Uri.parse(Utility.getBaseUrl() + "favorites/"));
             startActivity(i);
         } else if (item.getItemId() == R.id.download_page) {
@@ -145,6 +156,71 @@ public class FavoriteActivity extends BaseActivity {
             adapter.randomGallery();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void confirmOnlineFavoriteSync() {
+        if (favoriteSync != null) return;
+        if (!AuthStore.hasValidApiKey(this)) {
+            new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.favorites_sync_title)
+                .setMessage(R.string.favorites_sync_sign_in)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.title_activity_api_key,
+                    (dialog, which) -> startActivity(new Intent(this, ApiKeyActivity.class)))
+                .show();
+            return;
+        }
+
+        new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.favorites_sync_title)
+            .setMessage(R.string.favorites_sync_confirm)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.ok, (dialog, which) -> syncOnlineFavorites())
+            .show();
+    }
+
+    private void syncOnlineFavorites() {
+        if (favoriteSync != null) return;
+        FavoriteSync task = new FavoriteSync(this);
+        favoriteSync = task;
+        syncDialog = new MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.favorites_sync_title)
+            .setMessage(R.string.favorites_sync_running)
+            .setCancelable(false)
+            .setNegativeButton(R.string.cancel, (dialog, which) -> task.cancel())
+            .show();
+        new Thread(() -> {
+            try {
+                task.run();
+                runOnUiThread(() -> finishSync(task, true));
+            } catch (Exception e) {
+                if (!task.isCanceled()) LogUtility.e("Online favorites sync did not complete", e);
+                runOnUiThread(() -> finishSync(task, false));
+            }
+        }, "favorite-sync").start();
+    }
+
+    private void finishSync(FavoriteSync task, boolean completed) {
+        if (favoriteSync != task || isFinishing() || isDestroyed()) return;
+        favoriteSync = null;
+        syncDialog.dismiss();
+        syncDialog = null;
+        if (task.getDownloaded() > 0) {
+            pageSwitcher.setTotalPage(calculatePages(searchView == null ? null : searchView.getQuery().toString()));
+            adapter.forceReload();
+        }
+        int message = completed ? R.string.favorites_sync_done : R.string.favorites_sync_failed;
+        if (completed && task.getUnavailable() > 0) message = R.string.favorites_sync_skipped;
+        if (!completed && task.isCanceled()) message = R.string.favorites_sync_canceled;
+        Toast.makeText(this, getString(message, task.getDownloaded(), task.getUploaded(),
+            task.getUnavailable()), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (favoriteSync != null) favoriteSync.cancel();
+        if (syncDialog != null) syncDialog.dismiss();
+        super.onDestroy();
     }
 
     private void showDialogDownloadAll() {

@@ -820,6 +820,41 @@ public class Queries {
         }
 
 
+        public static List<Integer> listIds() {
+            List<Integer> ids = new ArrayList<>();
+            try (Cursor cursor = db.query(TABLE_NAME, new String[]{ID_GALLERY}, null, null,
+                null, null, TIME + " DESC, " + ID_GALLERY)) {
+                while (cursor.moveToNext()) ids.add(cursor.getInt(0));
+            }
+            return ids;
+        }
+
+        /** Commit a complete import without replacing existing gallery or favorite rows. */
+        public static int importMissing(List<Gallery> galleries) {
+            int added = 0;
+            db.beginTransaction();
+            try {
+                for (Gallery gallery : galleries) {
+                    int id = gallery.getId();
+                    if (isFavorite(id)) continue;
+                    try (Cursor row = db.query(GalleryTable.TABLE_NAME,
+                        new String[]{GalleryTable.IDGALLERY}, GalleryTable.IDGALLERY + "=?",
+                        new String[]{String.valueOf(id)}, null, null, null, "1")) {
+                        if (!row.moveToFirst()) GalleryTable.insert(gallery);
+                    }
+                    ContentValues values = new ContentValues(2);
+                    values.put(ID_GALLERY, id);
+                    values.put(TIME, new Date().getTime());
+                    db.insertOrThrow(TABLE_NAME, null, values);
+                    added++;
+                }
+                db.setTransactionSuccessful();
+                return added;
+            } finally {
+                db.endTransaction();
+            }
+        }
+
         static String titleTypeToColumn(TitleType type) {
             switch (type) {
                 case PRETTY:

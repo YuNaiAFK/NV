@@ -329,4 +329,12 @@
     <string name="auth_error">驗證錯誤</string>
     <string name="auth_title">生物特徵登入</string>
     <string name="auth_subtitle">使用您的生物特徵憑證登入</string>
+    <string name="favorites_sync_title">同步官網收藏</string>
+    <string name="favorites_sync_sign_in">請先填入並驗證 nhentai 帳號的 API 金鑰。</string>
+    <string name="favorites_sync_confirm">將官網與本機缺少的收藏互相補齊，兩邊都不會刪除任何收藏。</string>
+    <string name="favorites_sync_running">正在同步官網與本機收藏…</string>
+    <string name="favorites_sync_done">同步完成：本機新增 %1$d 筆，官網新增 %2$d 筆。</string>
+    <string name="favorites_sync_failed">同步未完成。已確認本機新增 %1$d 筆、官網新增 %2$d 筆。請檢查 API 金鑰與網路連線後重試。</string>
+    <string name="favorites_sync_canceled">同步已停止。已確認本機新增 %1$d 筆、官網新增 %2$d 筆。</string>
+    <string name="favorites_sync_skipped">本機新增 %1$d 筆，官網新增 %2$d 筆；%3$d 筆在官網無法取得。</string>
 </resources>

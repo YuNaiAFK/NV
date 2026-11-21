@@ -329,4 +329,12 @@
     <string name="auth_error">身份验证错误</string>
     <string name="auth_title">生物识别登录</string>
     <string name="auth_subtitle">使用您的生物识别凭证登录</string>
+    <string name="favorites_sync_title">同步官网收藏</string>
+    <string name="favorites_sync_sign_in">请先填写并验证 nhentai 账号的 API Key。</string>
+    <string name="favorites_sync_confirm">将官网和本地缺少的收藏互相补齐，两边都不会删除任何收藏。</string>
+    <string name="favorites_sync_running">正在同步官网和本地收藏…</string>
+    <string name="favorites_sync_done">同步完成：本地新增 %1$d 项，官网新增 %2$d 项。</string>
+    <string name="favorites_sync_failed">同步未完成。已确认本地新增 %1$d 项、官网新增 %2$d 项。请检查 API Key 和网络后重试。</string>
+    <string name="favorites_sync_canceled">同步已停止。已确认本地新增 %1$d 项、官网新增 %2$d 项。</string>
+    <string name="favorites_sync_skipped">本地新增 %1$d 项，官网新增 %2$d 项；%3$d 项在官网不可用。</string>
 </resources>
