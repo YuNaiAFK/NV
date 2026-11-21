@@ -227,6 +227,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.ViewHold
         boolean showSubtitle = second != null && !second.trim().isEmpty() && !second.equals(first);
         subtitle.setText(showSubtitle ? second : "");
         subtitle.setVisibility(showSubtitle ? View.VISIBLE : View.GONE);
+        enableTitleCopy(title);
+        enableTitleCopy(subtitle);
+    }
+
+    private void enableTitleCopy(TextView title) {
         title.setOnLongClickListener(v -> {
             CopyToClipboardActivity.copyTextToClipboard(context, title.getText().toString());
             Toast.makeText(context, R.string.title_copied_to_clipboard, Toast.LENGTH_SHORT).show();
