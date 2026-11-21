@@ -1,0 +1,19 @@
+name: nvbook_home
+description: Flutter browsing and navigation for the NVbook Android host.
+publish_to: none
+version: 1.0.0+1
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.11.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+flutter:
+  uses-material-design: true
+  module:
+    androidX: true
+    androidPackage: io.github.yunaiafk.nvbook.home
+    iosBundleIdentifier: io.github.yunaiafk.nvbook.home

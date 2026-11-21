@@ -80,7 +80,9 @@ public class PINActivity extends GeneralActivity {
 
     @Override
     public void finish() {
-        Intent i = new Intent(this, MainActivity.class);
+        Intent i = BuildConfig.FLUTTER_HOME
+            ? new Intent().setClassName(this, "com.maxwai.nclientv3.FlutterHomeActivity")
+            : new Intent(this, MainActivity.class);
         if (!hasPin() || authSuccess) startActivity(i);
         authSuccess = false;
         super.finish();

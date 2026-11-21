@@ -30,6 +30,13 @@
         android:theme="@style/AppTheme"
         tools:ignore="UnusedAttribute">
 
+        <activity
+            android:name=".FlutterHomeActivity"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:enabled="${nvbookFlutterEnabled}"
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize" />
         <activity android:name=".StatusManagerActivity" />
         <activity
             android:name=".PINActivity"

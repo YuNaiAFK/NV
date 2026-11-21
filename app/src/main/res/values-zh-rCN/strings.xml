@@ -337,4 +337,9 @@
     <string name="favorites_sync_failed">同步未完成。已确认本地新增 %1$d 项、官网新增 %2$d 项。请检查 API Key 和网络后重试。</string>
     <string name="favorites_sync_canceled">同步已停止。已确认本地新增 %1$d 项、官网新增 %2$d 项。</string>
     <string name="favorites_sync_skipped">本地新增 %1$d 项，官网新增 %2$d 项；%3$d 项在官网不可用。</string>
+    <string name="flutter_browse">浏览</string>
+    <string name="flutter_library">书库</string>
+    <string name="flutter_classic">经典浏览界面</string>
+    <string name="flutter_empty">没有找到内容</string>
+    <string name="flutter_more">加载更多</string>
 </resources>

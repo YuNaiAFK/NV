@@ -32,8 +32,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class VersionChecker {
-    private static final String RELEASE_API_URL = "https://api.github.com/repos/maxwai/NClientV3/releases";
-    private static final String LATEST_RELEASE_URL = "https://github.com/maxwai/NClientV3/releases/latest";
+    private static final String RELEASE_API_URL = "https://api.github.com/repos/YuNaiAFK/NV/releases";
+    private static final String LATEST_RELEASE_URL = "https://github.com/YuNaiAFK/NV/releases";
     private static String latest = null;
     private final AppCompatActivity context;
     private String downloadUrl;
@@ -127,11 +127,8 @@ public class VersionChecker {
                             jr.skipValue();
                             continue;
                         }
-                        release.downloadUrl = getDownloadUrl(jr);
-                        //noinspection ConstantValue
-                        if ((BuildConfig.FLAVOR.equals("pre28") && !release.downloadUrl.contains("pre28")) ||
-                            (BuildConfig.FLAVOR.equals("post28") && release.downloadUrl.contains("pre28")))
-                            release.downloadUrl = null;
+                        String candidate = getDownloadUrl(jr);
+                        if (candidate != null && isCompatibleAsset(candidate)) release.downloadUrl = candidate;
                     }
                     jr.endArray();
                     break;
@@ -142,7 +139,19 @@ public class VersionChecker {
         }
         jr.endObject();
 
-        return invalid ? null : release;
+        return invalid || release.downloadUrl == null ? null : release;
+    }
+
+    private static boolean isCompatibleAsset(String url) {
+        if (!url.startsWith("https://github.com/YuNaiAFK/NV/releases/download/")) return false;
+        String name = url.substring(url.lastIndexOf('/') + 1);
+        if (!name.startsWith("NVbook_") || !name.endsWith(".apk")) return false;
+        if (BuildConfig.FLAVOR.equals("pre28") != name.contains("_pre28")) return false;
+        switch (BuildConfig.BUILD_TYPE) {
+            case "debug": return name.endsWith("_debug.apk");
+            case "release": return !name.endsWith("_debug.apk") && !name.endsWith("_relwithdebinfo.apk");
+            default: return name.endsWith("_relwithdebinfo.apk");
+        }
     }
 
     private static String getDownloadUrl(JsonReader jr) throws IOException {
@@ -164,7 +173,7 @@ public class VersionChecker {
         if (finalBody == null) return;
         finalBody = finalBody
             .replace("\r\n", "\n")//Remove ugly newline
-            .replace("NClientV3 " + latestVersion, "")//remove version header
+            .replace("NVbook " + latestVersion, "")//remove version header
             .replaceAll("(\\s*\n\\s*)+", "\n")//remove multiple newline
             .replaceAll("\\(.*\\)", "").trim();//remove things between ()
         LogUtility.d("Evaluated: " + finalBody);
@@ -189,7 +198,7 @@ public class VersionChecker {
     }
 
     private void downloadVersion(String latestVersion) {
-        final File f = new File(Global.UPDATEFOLDER, "NClientV3_" + latestVersion + ".apk");
+        final File f = new File(Global.UPDATEFOLDER, "NVbook_" + latestVersion + ".apk");
         if (f.exists()) {
             if (context.getSharedPreferences("Settings", 0).getBoolean("downloaded", false)) {
                 installApp(f);

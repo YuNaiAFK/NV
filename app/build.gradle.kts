@@ -13,9 +13,21 @@ val keystoreProperties = Properties().apply {
     load(FileInputStream(keystorePropertiesFile))
 }
 
-val majorVersion = 4
-val minorVersion = 2
-val patchVersion = 8
+val flutterHomeEnabled = providers.gradleProperty("nvbookFlutter").map(String::toBoolean).orElse(false).get()
+val flutterHomeRepository = rootProject.file("flutter_home/build/host/outputs/repo")
+if (flutterHomeEnabled) {
+    require(flutterHomeRepository.isDirectory) {
+        "Build the nvbook_home Flutter AAR before enabling -PnvbookFlutter=true."
+    }
+    repositories {
+        maven { url = uri(flutterHomeRepository) }
+        maven { url = uri("https://storage.googleapis.com/download.flutter.io") }
+    }
+}
+
+val majorVersion = 5
+val minorVersion = 0
+val patchVersion = 0
 val buildVersion = 0
 val version = "${majorVersion}.${minorVersion}.${patchVersion}"
 
@@ -28,9 +40,12 @@ android {
             storePassword = keystoreProperties["storePassword"] as String
         }
     }
+    if (flutterHomeEnabled) sourceSets.getByName("main").java.srcDir("src/flutter/java")
     compileSdk = 36
     defaultConfig {
         applicationId = "com.maxwai.nclientv3"
+        manifestPlaceholders["nvbookFlutterEnabled"] = flutterHomeEnabled.toString()
+        buildConfigField("boolean", "FLUTTER_HOME", flutterHomeEnabled.toString())
         // Format: MmPPbb
         // M: Major, m: minor, P: Patch, b: build
         versionCode =
@@ -147,6 +162,12 @@ androidComponents {
 
 
 dependencies {
+    if (flutterHomeEnabled) {
+        val flutterGroup = "io.github.yunaiafk.nvbook.home"
+        add("debugImplementation", "$flutterGroup:flutter_debug:1.0")
+        add("releaseImplementation", "$flutterGroup:flutter_release:1.0")
+        add("RelWithDebInfoImplementation", "$flutterGroup:flutter_release:1.0")
+    }
 // Android
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.cardview:cardview:1.0.0")

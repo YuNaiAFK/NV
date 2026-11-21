@@ -430,4 +430,9 @@
     <string name="favorites_sync_failed">Sync incomplete. Confirmed: %1$d to this device, %2$d to the website. Check your API key and connection, then try again.</string>
     <string name="favorites_sync_canceled">Sync stopped. Confirmed: %1$d to this device, %2$d to the website.</string>
     <string name="favorites_sync_skipped">Synced: %1$d to this device, %2$d to the website. %3$d unavailable on the website.</string>
+    <string name="flutter_browse">Explore</string>
+    <string name="flutter_library">Library</string>
+    <string name="flutter_classic">Classic browsing</string>
+    <string name="flutter_empty">No galleries found</string>
+    <string name="flutter_more">Load more</string>
 </resources>

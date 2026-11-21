@@ -31,6 +31,26 @@ storeFile=dummy.jks
 
 在存放庫根目錄執行 `./gradlew assemblePost28Debug`（Windows：`.\gradlew.bat assemblePost28Debug`）。建置完成後，可在 `app/build/outputs/apk/` 下找到 APK。若要建置 Android 8 的偵錯版，請改用 `assemblePre28Debug`。
 
+## Flutter 介面
+
+新版瀏覽介面參考 [jiangtian616/JHenTai](https://github.com/jiangtian616/JHenTai) 的分頁導覽與封面瀏覽設計，以 Flutter 自行實作；未使用 JHenTai 的 E-Hentai 資料層、品牌或圖像。Android 宿主仍使用 NVbook 原有的 nhentai API、資料庫、帳號、收藏同步、下載與閱讀器。
+
+新版介面已用 Flutter 3.50.1 驗證。啟用 Flutter 介面時，從存放庫根目錄執行：
+
+```sh
+cd flutter_home
+flutter pub get
+flutter analyze
+flutter test
+flutter build aar --no-profile
+cd ..
+./gradlew -PnvbookFlutter=true assemblePost28Debug
+```
+
+Windows 上請將最後一行改為 `.\gradlew.bat -PnvbookFlutter=true assemblePost28Debug`。Android 8 偵錯版本使用 `assemblePre28Debug`。不加 `-PnvbookFlutter=true` 則保留原本的 Android 介面。
+
+正式版使用同一份 AAR 和專案原本的 `keystore.properties` 簽署設定，改執行 `assemblePost28Release` 或 `assemblePre28Release`。請勿提交簽署設定或金鑰。
+
 ## 授權條款
 
 本專案沿用 [Apache License 2.0](LICENSE)。上游著作權聲明：Copyright 2024 maxwai。
