@@ -2,6 +2,7 @@ package com.maxwai.nclientv3.components.activities;
 
 import android.app.Activity;
 import android.app.Application;
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -38,6 +39,22 @@ public class CrashApplication extends Application {
             AppCompatDelegate.setDefaultNightMode(theme.equals(availableThemes[0]) ? // light
                 AppCompatDelegate.MODE_NIGHT_NO :
                 AppCompatDelegate.MODE_NIGHT_YES));
+    }
+
+    public static boolean applyAppearance(Context context, String theme) {
+        if (!"light".equals(theme) && !"dark".equals(theme) && !"black".equals(theme)) return false;
+        context.getSharedPreferences("Settings", MODE_PRIVATE).edit()
+            .putString(context.getString(R.string.preference_key_theme_select), theme)
+            .putBoolean(context.getString(R.string.preference_key_black_theme), "black".equals(theme))
+            .apply();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            UiModeManager manager = context.getSystemService(UiModeManager.class);
+            manager.setApplicationNightMode("light".equals(theme)
+                ? UiModeManager.MODE_NIGHT_NO : UiModeManager.MODE_NIGHT_YES);
+        } else {
+            setDarkLightTheme(theme, context);
+        }
+        return true;
     }
 
     @Override

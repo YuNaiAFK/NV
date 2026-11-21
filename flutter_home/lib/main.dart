@@ -10,6 +10,27 @@ class Host {
   Future<Map<Object?, Object?>> loadSettings() async =>
       await _channel.invokeMapMethod<Object?, Object?>('settings') ?? {};
 
+  Future<Map<Object?, Object?>> setTheme(String theme) async {
+    final result = await _channel.invokeMapMethod<Object?, Object?>(
+      'setTheme',
+      {'theme': theme},
+    );
+    if (result == null) throw PlatformException(code: 'theme');
+    return result;
+  }
+
+  Future<Map<Object?, Object?>> setCatalogPreference(
+    String kind,
+    String value,
+  ) async {
+    final result = await _channel.invokeMapMethod<Object?, Object?>(
+      'setCatalogPreference',
+      {'kind': kind, 'value': value},
+    );
+    if (result == null) throw PlatformException(code: 'catalog_preference');
+    return result;
+  }
+
   Future<CatalogPage> catalog(String query, int page) async {
     final response = await _channel.invokeMapMethod<Object?, Object?>(
       'catalog',
@@ -97,6 +118,18 @@ class _NvbookAppState extends State<NvbookApp> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _changeTheme(String theme) async {
+    final request = ++_request;
+    final settings = await widget.host.setTheme(theme);
+    if (mounted && request == _request) setState(() => _settings = settings);
+  }
+
+  Future<void> _changeCatalogPreference(String kind, String value) async {
+    final request = ++_request;
+    final settings = await widget.host.setCatalogPreference(kind, value);
+    if (mounted && request == _request) setState(() => _settings = settings);
+  }
+
   ThemeData _theme(Brightness brightness, {bool black = false}) {
     var colors = ColorScheme.fromSeed(
       seedColor: const Color(0xff66529f),
@@ -134,7 +167,12 @@ class _NvbookAppState extends State<NvbookApp> with WidgetsBindingObserver {
         _ => ThemeMode.system,
       },
       home: _settings.isNotEmpty
-          ? Workspace(host: widget.host, labels: _settings)
+          ? Workspace(
+              host: widget.host,
+              labels: _settings,
+              onThemeChanged: _changeTheme,
+              onCatalogPreferenceChanged: _changeCatalogPreference,
+            )
           : Scaffold(
               body: Center(
                 child: _startupFailed
@@ -150,7 +188,15 @@ class _NvbookAppState extends State<NvbookApp> with WidgetsBindingObserver {
 }
 
 class Workspace extends StatefulWidget {
-  const Workspace({super.key, required this.host, required this.labels});
+  const Workspace({
+    super.key,
+    required this.host,
+    required this.labels,
+    required this.onThemeChanged,
+    required this.onCatalogPreferenceChanged,
+  });
+  final Future<void> Function(String) onThemeChanged;
+  final Future<void> Function(String, String) onCatalogPreferenceChanged;
   final Host host;
   final Map<Object?, Object?> labels;
 
@@ -173,6 +219,17 @@ class _WorkspaceState extends State<Workspace> {
       if (!_failed && _scroll.position.extentAfter < 300) _nextPage();
     });
     _searchFor('');
+  }
+
+  @override
+  void didUpdateWidget(covariant Workspace oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.labels['language'] != widget.labels['language'] ||
+        oldWidget.labels['sort'] != widget.labels['sort']) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _searchFor(_query);
+      });
+    }
   }
 
   @override
@@ -234,6 +291,59 @@ class _WorkspaceState extends State<Workspace> {
     }
   }
 
+  Widget _catalogPreference(String kind, String optionsKey, IconData icon) {
+    final options = (widget.labels[optionsKey] as Map).cast<String, String>();
+    final current = widget.labels[kind] as String?;
+    final colors = Theme.of(context).colorScheme;
+    return PopupMenuButton<String>(
+      tooltip: label('${kind}Label'),
+      initialValue: current,
+      onSelected: (value) async {
+        if (value == current) return;
+        try {
+          await widget.onCatalogPreferenceChanged(kind, value);
+        } on PlatformException {
+          if (mounted)
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(label('error'))));
+        }
+      },
+      itemBuilder: (context) => [
+        for (final option in options.entries)
+          CheckedPopupMenuItem(
+            value: option.key,
+            checked: option.key == current,
+            child: Text(option.value),
+          ),
+      ],
+      child: Ink(
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerLow,
+          border: Border.all(color: colors.outlineVariant),
+          borderRadius: BorderRadius.circular(22),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+          child: Row(
+            children: [
+              Icon(icon, size: 17),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  options[current] ?? label('${kind}Label'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Icon(Icons.expand_more, size: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _catalog() {
     return Column(
       children: [
@@ -262,6 +372,25 @@ class _WorkspaceState extends State<Workspace> {
             ],
           ),
         ),
+        if (widget.labels['languages'] is Map && widget.labels['sorts'] is Map)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _catalogPreference(
+                    'language',
+                    'languages',
+                    Icons.language,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _catalogPreference('sort', 'sorts', Icons.sort),
+                ),
+              ],
+            ),
+          ),
         Expanded(
           child: RefreshIndicator(
             onRefresh: () => _searchFor(_query),
@@ -335,8 +464,44 @@ class _WorkspaceState extends State<Workspace> {
     leading: Icon(icon),
     title: Text(label(key)),
     trailing: const Icon(Icons.chevron_right),
-    onTap: () => _open(key),
+    onTap: key == 'appearance' ? _showThemePicker : () => _open(key),
   );
+
+  Future<void> _showThemePicker() async {
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(label('appearance')),
+        children: [
+          for (final mode in ['light', 'dark', 'black'])
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, mode),
+              child: Row(
+                children: [
+                  Icon(
+                    widget.labels['theme'] == mode
+                        ? Icons.check_circle
+                        : Icons.circle_outlined,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(label(mode)),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+    if (!mounted || selected == null || widget.labels['theme'] == selected)
+      return;
+    try {
+      await widget.onThemeChanged(selected);
+    } on PlatformException {
+      if (mounted)
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(label('error'))));
+    }
+  }
 
   Widget _panel(List<(String, IconData)> destinations) => ListView(
     padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
@@ -385,6 +550,7 @@ class _WorkspaceState extends State<Workspace> {
             ('history', Icons.history),
           ]),
           _panel([
+            ('appearance', Icons.dark_mode_outlined),
             ('account', Icons.person_outline),
             ('settings', Icons.tune_outlined),
             ('tags', Icons.sell_outlined),

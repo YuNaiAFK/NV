@@ -19,6 +19,9 @@ import androidx.core.os.LocaleListCompat;
 import com.maxwai.nclientv3.api.InspectorV3;
 import com.maxwai.nclientv3.api.SimpleGallery;
 import com.maxwai.nclientv3.api.components.GenericGallery;
+import com.maxwai.nclientv3.api.enums.Language;
+import com.maxwai.nclientv3.api.enums.SortType;
+import com.maxwai.nclientv3.components.activities.CrashApplication;
 import com.maxwai.nclientv3.settings.AuthStore;
 import com.maxwai.nclientv3.settings.Global;
 import com.maxwai.nclientv3.settings.TagV2;
@@ -27,6 +30,7 @@ import com.maxwai.nclientv3.utility.Utility;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -56,6 +60,16 @@ public final class FlutterHomeActivity extends FlutterActivity {
             switch (call.method) {
                 case "settings":
                     result.success(settings());
+                    break;
+                case "setTheme":
+                    if (CrashApplication.applyAppearance(this, call.argument("theme"))) {
+                        result.success(settings());
+                    } else {
+                        result.error("theme", "Unsupported theme", null);
+                    }
+                    break;
+                case "setCatalogPreference":
+                    updateCatalogPreference(call, result);
                     break;
                 case "catalog":
                     loadCatalog(call, result);
@@ -113,11 +127,54 @@ public final class FlutterHomeActivity extends FlutterActivity {
         settings.put("random", localized.getString(R.string.random_manga));
         settings.put("retry", localized.getString(R.string.retry));
         settings.put("error", localized.getString(R.string.unable_to_connect_to_the_site));
+        settings.put("appearance", localized.getString(R.string.change_theme));
+        String[] themes = localized.getResources().getStringArray(R.array.theme);
+        settings.put("light", themes[0]);
+        settings.put("dark", themes[1]);
+        settings.put("black", themes[2]);
         settings.put("theme", getSharedPreferences("Settings", MODE_PRIVATE)
             .getString(getString(R.string.preference_key_theme_select), "light"));
+        Map<String, String> languages = new LinkedHashMap<>();
+        for (Language language : new Language[]{Language.ALL, Language.CHINESE, Language.ENGLISH, Language.JAPANESE}) {
+            languages.put(language.name(), localized.getString(language.getNameResId()));
+        }
+        Map<String, String> sorts = new LinkedHashMap<>();
+        for (SortType sort : SortType.values()) {
+            sorts.put(sort.name(), localized.getString(sort.getNameId()));
+        }
+        settings.put("languages", languages);
+        settings.put("sorts", sorts);
+        settings.put("language", Global.getOnlyLanguage().name());
+        settings.put("sort", Global.getSortType().name());
+        settings.put("languageLabel", localized.getString(R.string.all_languages));
+        settings.put("sortLabel", localized.getString(R.string.sort_select_type));
         settings.put("showTitles", Global.showTitles());
         settings.put("signedIn", AuthStore.hasValidApiKey(this));
         return settings;
+    }
+
+    private void updateCatalogPreference(MethodCall call, MethodChannel.Result result) {
+        String kind = call.argument("kind");
+        String value = call.argument("value");
+        if (value != null) {
+            try {
+                if ("language".equals(kind)) {
+                    Language language = Language.valueOf(value);
+                    if (language != Language.UNKNOWN) {
+                        Global.updateOnlyLanguage(this, language);
+                        result.success(settings());
+                        return;
+                    }
+                } else if ("sort".equals(kind)) {
+                    Global.updateSortType(this, SortType.valueOf(value));
+                    result.success(settings());
+                    return;
+                }
+            } catch (IllegalArgumentException ignored) {
+                // Invalid values must not alter the saved catalog preference.
+            }
+        }
+        result.error("catalog_preference", "Unsupported catalog preference", null);
     }
 
     private void loadCatalog(MethodCall call, MethodChannel.Result result) {

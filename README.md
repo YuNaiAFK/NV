@@ -51,6 +51,10 @@ Windows 上請將最後一行改為 `.\gradlew.bat -PnvbookFlutter=true assemble
 
 正式版使用同一份 AAR 和專案原本的 `keystore.properties` 簽署設定，改執行 `assemblePost28Release` 或 `assemblePre28Release`。請勿提交簽署設定或金鑰。
 
+## 發布流程
+
+發行版在本機完成建置並驗證簽章後，使用 GitHub CLI 將兩個 APK 直接上傳至 [YuNaiAFK/NV Releases](https://github.com/YuNaiAFK/NV/releases)。發布標籤指向實際建置的開發分支提交，不直接推送 `main`，也不使用瀏覽器或 GitHub Actions 打包上傳。單純執行測試或驗證用的偵錯建置不建立 Release。
+
 ## 授權條款
 
 本專案沿用 [Apache License 2.0](LICENSE)。上游著作權聲明：Copyright 2024 maxwai。

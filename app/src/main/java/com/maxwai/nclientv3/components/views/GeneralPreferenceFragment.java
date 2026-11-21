@@ -4,7 +4,6 @@ import static androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK;
 import static androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL;
 
 import android.annotation.SuppressLint;
-import android.app.UiModeManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -55,7 +54,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -236,33 +234,8 @@ public class GeneralPreferenceFragment extends PreferenceFragmentCompat {
 
         {
             Preference themeSelect = Objects.requireNonNull(findPreference(getString(R.string.preference_key_theme_select)));
-            themeSelect.setOnPreferenceChangeListener((preference, newValue) -> {
-                String newTheme = (String) newValue;
-                String[] availableThemes = getResources().getStringArray(R.array.theme_data);
-                assert availableThemes.length == 3;
-                if (Arrays.stream(availableThemes).noneMatch(newTheme::equals)) {
-                    return false;
-                }
-                act.getSharedPreferences("Settings", 0)
-                    .edit()
-                    .putBoolean(getString(R.string.preference_key_black_theme), newTheme.equals(availableThemes[2])) // black
-                    .apply();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    int theme;
-                    if (newTheme.equals(availableThemes[0])) { // light
-                        theme = UiModeManager.MODE_NIGHT_NO;
-                    } else if (newTheme.equals(availableThemes[1]) || newTheme.equals(availableThemes[2])) { // dark / black
-                        theme = UiModeManager.MODE_NIGHT_YES;
-                    } else {
-                        return false;
-                    }
-                    UiModeManager uim = (UiModeManager) act.getSystemService(Context.UI_MODE_SERVICE);
-                    uim.setApplicationNightMode(theme);
-                } else {
-                    CrashApplication.setDarkLightTheme(newTheme, act);
-                }
-                return true;
-            });
+            themeSelect.setOnPreferenceChangeListener((preference, newValue) ->
+                CrashApplication.applyAppearance(act, (String) newValue));
         }
         {
             Preference keyLanguage = Objects.requireNonNull(findPreference(getString(R.string.preference_key_language)));

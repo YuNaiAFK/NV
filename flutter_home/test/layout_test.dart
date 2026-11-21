@@ -15,6 +15,12 @@ class LayoutHost extends Host {
     'settings': 'Settings',
     'search': 'Search galleries',
     'advanced': 'Search filters',
+    'language': 'ALL',
+    'sort': 'RECENT',
+    'languages': {'ALL': 'All languages', 'JAPANESE': 'Japanese'},
+    'sorts': {'RECENT': 'Recent', 'POPULAR': 'Popular this week'},
+    'languageLabel': 'Gallery language',
+    'sortLabel': 'Sort order',
     'favorites': 'Local favorites',
     'online': 'Website favorites',
     'downloads': 'Downloads',
@@ -92,6 +98,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Contemporary Illustration'), findsOneWidget);
     expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
+    expect(find.byTooltip('Gallery language'), findsOneWidget);
+    expect(find.byTooltip('Sort order'), findsOneWidget);
     await tester.runAsync(() => capture(tester, surface, 'explore'));
     await tester.tap(find.widgetWithText(NavigationDestination, 'Library'));
     await tester.pumpAndSettle();
